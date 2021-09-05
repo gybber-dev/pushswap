@@ -26,6 +26,7 @@ typedef struct s_all
     t_stack *a;
     t_stack *b;
     int size;
+    int counter;
 }				t_all;
 
 #endif
