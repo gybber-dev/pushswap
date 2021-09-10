@@ -44,11 +44,23 @@ t_stack	*ft_lst2_new(int num)
 	new->val = num;
 	new->index = -1;
 	new->mark = 0;
+	ft_memset(&new->table, 0, sizeof(t_table));
 	new->next = NULL;
 	new->prev = NULL;
-	new->virt_next = NULL;
-	new->virt_prev = NULL;
 	return (new);
+}
+
+int	count_lst_size(t_stack *ptr)
+{
+	int	i;
+
+	i = 0;
+	while(ptr)
+	{
+		i++;
+		ptr = ptr->next;
+	}
+	return (i);
 }
 
 t_stack	*ft_lst2_add_back(t_stack **lst, t_stack *new)
@@ -95,7 +107,6 @@ void parse_argv(char **argv, t_stack **a, int size)
 		if (is_double(*a, num))
 			fatal_exit();
 		new = ft_lst2_new(num);
-		new->size = size;
 		ft_lst2_add_back(a, new);
 		i++;
 	}
@@ -149,7 +160,7 @@ int is_next(int current_index, int next_index, int size)
 	return 0;
 }
 
-int count_lost(t_stack *start, t_stack *head, int mark_sequence)
+int count_lost_elems_in_a(t_stack *start, t_stack *head, int mark_sequence, int size)
 {
 	int counter;
 	t_stack *current_node;
@@ -168,7 +179,7 @@ int count_lost(t_stack *start, t_stack *head, int mark_sequence)
 			next_node = current_node->next;
 		if (next_node == start)
 			break;
-		if (is_next(last_serial_index, next_node->index, current_node->size))
+		if (is_next(last_serial_index, next_node->index, size))
 		{
 			counter++;
 			next_node->mark = mark_sequence;
@@ -181,7 +192,7 @@ int count_lost(t_stack *start, t_stack *head, int mark_sequence)
 	return counter;
 }
 
-void mark_elems_to_drop(t_stack *a)
+void mark_elems_to_drop(t_stack *a, int size)
 {
 	t_stack *tmp;
 	t_stack *max_p;
@@ -193,7 +204,7 @@ void mark_elems_to_drop(t_stack *a)
 	max_lost = -1;
 	while (tmp)
 	{
-		lost = count_lost(tmp, a, 0);
+		lost = count_lost_elems_in_a(tmp, a, 0, size);
 		if (lost > max_lost)
 		{
 			max_lost = lost;
@@ -202,7 +213,7 @@ void mark_elems_to_drop(t_stack *a)
 		tmp = tmp->next;
 	}
 	printf("=========\nmax_sequence begins from: %d [%d]\n", max_p->val, max_lost);
-	count_lost(max_p, a, 1);
+	count_lost_elems_in_a(max_p, a, 1, size);
 }
 
 //ptr 	ptr.next 	ptr.next
@@ -390,8 +401,137 @@ void drop_non_marked_elems_to_b(t_all *all)
 
 void prepare_stacks (t_all *all)
 {
-	mark_elems_to_drop(all->a);
+	mark_elems_to_drop(all->a, all->size);
 	drop_non_marked_elems_to_b(all);
+}
+
+int max(int a, int b)
+{
+	if (a > b)
+		return a;
+	return b;
+}
+
+int min(int a, int b)
+{
+	if (a < b)
+		return a;
+	return b;
+}
+
+void count_total(t_table *table)
+{
+	table->total = max(table->a_up, table->b_up);
+	table->total = min(table->a_up + table->b_down, table->total);
+	table->total = min(table->a_down + table->b_up, table->total);
+	table->total = min(max(table->a_down, table->b_down), table->total);
+}
+
+t_stack *get_prev(t_stack *ptr)
+{
+	if (!ptr)
+		return (NULL);
+	if (ptr->prev)
+		return ptr->prev;
+	while (ptr->next)
+		ptr = ptr->next;
+	return (ptr);
+}
+
+t_stack *get_next(t_stack *ptr)
+{
+	if (!ptr)
+		return (NULL);
+	if (ptr->next)
+		return (ptr->next);
+	while (ptr->prev)
+		ptr = ptr->prev;
+	return (ptr);
+}
+
+void	count_steps_for_b_elem(t_stack **ptr, int index, t_all *all)
+{
+	int	size_a;
+	int size_b;
+	t_stack *tmp;
+	t_stack *prev;
+	t_stack *next;
+
+	size_a = count_lst_size(all->a);
+	size_b = count_lst_size(all->b);
+	(*ptr)->table.b_up = index;
+	(*ptr)->table.b_down = size_b - index;
+	tmp = all->a;
+	while(tmp)
+	{
+		prev = get_prev(tmp);
+		next = get_next(tmp);
+		if (prev->val < (*ptr)->val && (*ptr)->val < next->val)
+			break;
+		(*ptr)->table.a_up++;
+		tmp = tmp->next;
+	}
+	(*ptr)->table.a_down = size_a - (*ptr)->table.a_up;
+	count_total(&(*ptr)->table);
+}
+
+void count_totals_for_each_b_elem(t_all *all)
+{
+	t_stack *ptr;
+	int		index;
+
+	index = 0;
+	ptr = all->b;
+	while(ptr)
+	{
+		count_steps_for_b_elem(&ptr, index, all);
+		index++;
+		ptr = ptr->next;
+	}
+}
+
+t_stack *choose_elem_with_min_total(t_stack *ptr)
+{
+	int current_total;
+	t_stack *res_elem;
+
+	if (!ptr)
+		return (ptr);
+	res_elem = NULL;
+	current_total = ptr->table.total;
+	while(ptr->next)
+	{
+		if (ptr->table.total < current_total)
+		{
+			current_total = ptr->table.total;
+			res_elem = ptr;
+		}
+		ptr = ptr->next;
+	}
+	return (res_elem);
+}
+
+t_stack *find_optimal_element(t_all *all)
+{
+	t_stack *ptr;
+
+	ptr = NULL;
+	count_totals_for_each_b_elem(all);
+	ptr = choose_elem_with_min_total(all->b);
+	return (ptr);
+}
+
+void find_fastest_way(t_all *all)
+{
+	t_stack *tmp;
+
+	tmp = NULL;
+	while(count_lst_size(all->b))
+	{
+		tmp = find_optimal_element(all);
+//		move_stacks
+		pa(&all->a, &all->b, 1);
+	}
 }
 
 int main(int argc, char **argv)
@@ -407,5 +547,6 @@ int main(int argc, char **argv)
 	print_lst(all.a);
 	print_lst(all.b);
 	printf("total operations: %d\n", all.counter);
+	find_fastest_way(&all);
 	return 0;
 }
