@@ -107,7 +107,6 @@ void parse_argv(char **argv, t_stack **a, int size)
 		if (is_double(*a, num))
 			fatal_exit();
 		new = ft_lst2_new(num);
-		new->size = size;
 		ft_lst2_add_back(a, new);
 		i++;
 	}
@@ -406,9 +405,48 @@ void prepare_stacks (t_all *all)
 	drop_non_marked_elems_to_b(all);
 }
 
+int max(int a, int b)
+{
+	if (a > b)
+		return a;
+	return b;
+}
+
+int min(int a, int b)
+{
+	if (a < b)
+		return a;
+	return b;
+}
+
 void count_total(t_table *table)
 {
-	table->total = table->a_up + table->b_up; // TODO
+	table->total = max(table->a_up, table->b_up);
+	table->total = min(table->a_up + table->b_down, table->total);
+	table->total = min(table->a_down + table->b_up, table->total);
+	table->total = min(max(table->a_down, table->b_down), table->total);
+}
+
+t_stack *get_prev(t_stack *ptr)
+{
+	if (!ptr)
+		return (NULL);
+	if (ptr->prev)
+		return ptr->prev;
+	while (ptr->next)
+		ptr = ptr->next;
+	return (ptr);
+}
+
+t_stack *get_next(t_stack *ptr)
+{
+	if (!ptr)
+		return (NULL);
+	if (ptr->next)
+		return (ptr->next);
+	while (ptr->prev)
+		ptr = ptr->prev;
+	return (ptr);
 }
 
 void	count_steps_for_b_elem(t_stack **ptr, int index, t_all *all)
@@ -426,8 +464,8 @@ void	count_steps_for_b_elem(t_stack **ptr, int index, t_all *all)
 	tmp = all->a;
 	while(tmp)
 	{
-		prev = get_prev(tmp, all->a);
-		next = get_next(tmp, all->a);
+		prev = get_prev(tmp);
+		next = get_next(tmp);
 		if (prev->val < (*ptr)->val && (*ptr)->val < next->val)
 			break;
 		(*ptr)->table.a_up++;
@@ -452,10 +490,35 @@ void count_totals_for_each_b_elem(t_all *all)
 	}
 }
 
+t_stack *choose_elem_with_min_total(t_stack *ptr)
+{
+	int current_total;
+	t_stack *res_elem;
+
+	if (!ptr)
+		return (ptr);
+	res_elem = NULL;
+	current_total = ptr->table.total;
+	while(ptr->next)
+	{
+		if (ptr->table.total < current_total)
+		{
+			current_total = ptr->table.total;
+			res_elem = ptr;
+		}
+		ptr = ptr->next;
+	}
+	return (res_elem);
+}
+
 t_stack *find_optimal_element(t_all *all)
 {
+	t_stack *ptr;
+
+	ptr = NULL;
 	count_totals_for_each_b_elem(all);
-	choose_elem_with_min_total(all->b);
+	ptr = choose_elem_with_min_total(all->b);
+	return (ptr);
 }
 
 void find_fastest_way(t_all *all)
@@ -481,9 +544,9 @@ int main(int argc, char **argv)
 	count_indexes(all.a, all.size);
 	print_lst(all.a);
 	prepare_stacks(&all);
-	find_fastest_way(&all);
 	print_lst(all.a);
 	print_lst(all.b);
 	printf("total operations: %d\n", all.counter);
+	find_fastest_way(&all);
 	return 0;
 }
