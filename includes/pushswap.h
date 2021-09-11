@@ -23,6 +23,16 @@ typedef struct s_table
 }				t_table;
 
 
+typedef struct s_table
+{
+	int		a_up;
+	int		a_down;
+	int		b_up;
+	int		b_down;
+	int		total;
+}				t_table;
+
+
 typedef struct s_stack
 {
     int val;
