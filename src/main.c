@@ -188,7 +188,7 @@ int count_lost_elems_in_a(t_stack *start, t_stack *head, int mark_sequence, int 
 		current_node = next_node;
 
 	}
-	printf("%d\t[%d] = %d\n", start->val, start->index, counter);
+//	printf("%d\t[%d] = %d\n", start->val, start->index, counter);
 	return counter;
 }
 
@@ -212,7 +212,7 @@ void mark_elems_to_drop(t_stack *a, int size)
 		}
 		tmp = tmp->next;
 	}
-	printf("=========\nmax_sequence begins from: %d [%d]\n", max_p->val, max_lost);
+//	printf("=========\nmax_sequence begins from: %d [%d]\n", max_p->val, max_lost);
 	count_lost_elems_in_a(max_p, a, 1, size);
 }
 
@@ -421,10 +421,29 @@ int min(int a, int b)
 
 void count_total(t_table *table)
 {
+	int	prev_total;
+
+	table->optimal_comb = UP_UP;
 	table->total = max(table->a_up, table->b_up);
+	prev_total = table->total;
 	table->total = min(table->a_up + table->b_down, table->total);
+	if (table->total < prev_total)
+	{
+		prev_total = table->total;
+		table->optimal_comb = UP_DOWN;
+	}
 	table->total = min(table->a_down + table->b_up, table->total);
+	if (table->total < prev_total)
+	{
+		prev_total = table->total;
+		table->optimal_comb = DOWN_UP;
+	}
 	table->total = min(max(table->a_down, table->b_down), table->total);
+	if (table->total < prev_total)
+	{
+		prev_total = table->total;
+		table->optimal_comb = DOWN_DOWN;
+	}
 }
 
 t_stack *get_prev(t_stack *ptr)
@@ -449,6 +468,26 @@ t_stack *get_next(t_stack *ptr)
 	return (ptr);
 }
 
+void	find_side_indexes(t_stack *ptr, int *top_index, int *bottom_index)
+{
+	if (!ptr)
+	{
+		*top_index = 0;
+		*bottom_index = 0;
+		return;
+	}
+	*top_index = ptr->index;
+	*bottom_index = ptr->index;
+	while (ptr)
+	{
+		if (*top_index < ptr->index)
+			*top_index = ptr->index;
+		if (*bottom_index > ptr->index)
+			*bottom_index = ptr->index;
+		ptr = ptr->next;
+	}
+}
+
 void	count_steps_for_b_elem(t_stack **ptr, int index, t_all *all)
 {
 	int	size_a;
@@ -456,17 +495,21 @@ void	count_steps_for_b_elem(t_stack **ptr, int index, t_all *all)
 	t_stack *tmp;
 	t_stack *prev;
 	t_stack *next;
+	int	top_index;
+	int	bottom_index;
 
-	size_a = count_lst_size(all->a);
-	size_b = count_lst_size(all->b);
+	find_side_indexes(all->a, &top_index, &bottom_index); // TODO move to level up
+	size_a = count_lst_size(all->a); // TODO move to level up
+	size_b = count_lst_size(all->b); // TODO move to level up
 	(*ptr)->table.b_up = index;
 	(*ptr)->table.b_down = size_b - index;
 	tmp = all->a;
 	while(tmp)
 	{
 		prev = get_prev(tmp);
-		next = get_next(tmp);
-		if (prev->val < (*ptr)->val && (*ptr)->val < next->val)
+		next = tmp;
+		if ((prev->index < (*ptr)->index && (*ptr)->index < next->index) || \
+		(prev->index == top_index && next->index == bottom_index && ((*ptr)->index < top_index || (*ptr)->index > bottom_index)))
 			break;
 		(*ptr)->table.a_up++;
 		tmp = tmp->next;
@@ -484,6 +527,7 @@ void count_totals_for_each_b_elem(t_all *all)
 	ptr = all->b;
 	while(ptr)
 	{
+		ft_memset(&ptr->table, 0, sizeof(t_table));
 		count_steps_for_b_elem(&ptr, index, all);
 		index++;
 		ptr = ptr->next;
@@ -497,7 +541,7 @@ t_stack *choose_elem_with_min_total(t_stack *ptr)
 
 	if (!ptr)
 		return (ptr);
-	res_elem = NULL;
+	res_elem = ptr;
 	current_total = ptr->table.total;
 	while(ptr->next)
 	{
@@ -511,14 +555,84 @@ t_stack *choose_elem_with_min_total(t_stack *ptr)
 	return (res_elem);
 }
 
-t_stack *find_optimal_element(t_all *all)
+void move_optimal_element_to_a(t_stack *ptr, t_all *all)
 {
-	t_stack *ptr;
+	int	i;
 
-	ptr = NULL;
-	count_totals_for_each_b_elem(all);
-	ptr = choose_elem_with_min_total(all->b);
-	return (ptr);
+	if (ptr->table.optimal_comb == UP_UP)
+	{
+		i = 0;
+		while(i < min(ptr->table.a_up, ptr->table.b_up))
+			i += rr(&all->a, &all->b, 1);
+		while(i < max(ptr->table.a_up, ptr->table.b_up))
+			if (ptr->table.a_up > ptr->table.b_up)
+				i += ra(&all->a, 1);
+			else
+				i += rb(&all->a, 1);
+		all->counter += i;
+	}
+	if (ptr->table.optimal_comb == DOWN_DOWN)
+	{
+		i = 0;
+		while(i < min(ptr->table.a_down, ptr->table.b_down))
+			i += rrr(&all->a, &all->b, 1);
+		while(i < max(ptr->table.a_down, ptr->table.b_down))
+			if (ptr->table.a_down > ptr->table.b_down)
+				i += rra(&all->a, 1);
+			else
+				i += rrb(&all->a, 1);
+		all->counter += i;
+	}
+	if (ptr->table.optimal_comb == DOWN_UP)
+	{
+		i = 0;
+		while(i < ptr->table.a_down)
+			i += rra(&all->a, 1);
+		all->counter += i;
+		i = 0;
+		while(i < ptr->table.b_up)
+			i += rb(&all->b, 1);
+		all->counter += i;
+	}
+	if (ptr->table.optimal_comb == UP_DOWN)
+	{
+		i = 0;
+		while(i < ptr->table.a_up)
+			i += ra(&all->a, 1);
+		all->counter += i;
+		i = 0;
+		while(i < ptr->table.b_down)
+			i += rrb(&all->b, 1);
+		all->counter += i;
+	}
+	pa(&all->a, &all->b, 1);
+	all->counter += 1;
+	print_lst(all->a);
+	print_lst(all->b);
+}
+
+void put_head_on_top(t_stack **a, int size, int *counter)
+{
+	t_stack *tmp;
+	int	i;
+	int	is_shift_down;
+
+	i = 0;
+	tmp = *a;
+	while (tmp->index != 0 && ++i)
+		tmp = tmp->next;
+	is_shift_down = 0;
+	if (i > size/2)
+	{
+		is_shift_down = 1;
+		i = size - i;
+	}
+	*counter += i;
+	while (i-- > 0)
+		if (is_shift_down)
+			rra(a, 1);
+		else
+			ra(a, 1);
 }
 
 void find_fastest_way(t_all *all)
@@ -528,15 +642,18 @@ void find_fastest_way(t_all *all)
 	tmp = NULL;
 	while(count_lst_size(all->b))
 	{
-		tmp = find_optimal_element(all);
-//		move_stacks
-		pa(&all->a, &all->b, 1);
+		count_totals_for_each_b_elem(all);
+		tmp = choose_elem_with_min_total(all->b);
+		move_optimal_element_to_a(tmp, all);
+		put_head_on_top(&all->a, all->size, &all->counter);
+//		pa(&all->a, &all->b, 1);
 	}
 }
 
 int main(int argc, char **argv)
 {
 	t_all all;
+//	printf("args: %d\n", argc);
 	if (argc == 1)
 		return (EXIT_SUCCESS);
 	init_struct(&all, argc);
@@ -546,7 +663,8 @@ int main(int argc, char **argv)
 	prepare_stacks(&all);
 	print_lst(all.a);
 	print_lst(all.b);
-	printf("total operations: %d\n", all.counter);
 	find_fastest_way(&all);
+	printf("total operations: %d\n", all.counter);
+	print_lst(all.a);
 	return 0;
 }

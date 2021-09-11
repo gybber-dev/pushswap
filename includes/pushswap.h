@@ -7,6 +7,10 @@
 # include <errno.h>
 
 # define INT_MAX 2147483647
+# define UP_UP 0
+# define UP_DOWN 1
+# define DOWN_UP 2
+# define DOWN_DOWN 3
 
 typedef struct s_table
 {
@@ -15,6 +19,7 @@ typedef struct s_table
 	int		b_up;
 	int		b_down;
 	int		total;
+	int		optimal_comb;
 }				t_table;
 
 
@@ -27,6 +32,7 @@ typedef struct s_stack
     struct s_stack *next;
     struct s_stack *prev;
 }               t_stack;
+
 
 
 typedef struct s_all
