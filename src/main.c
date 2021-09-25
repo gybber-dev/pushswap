@@ -17,7 +17,7 @@ int	is_number(char *str)
 	return (1);
 }
 
-int	 fatal_exit()
+void	fatal_exit()
 {
 	ft_putstr_fd("Error\n", 2);
 	exit(EXIT_FAILURE);
@@ -96,8 +96,8 @@ void parse_argv(char **argv, t_stack **a, int size)
 	int num;
 	t_stack *new;
 
-	i = 1;
-	while (argv[i])
+	i = 0;
+	while (argv && argv[i])
 	{
 		if (!is_number(argv[i]))
 			fatal_exit();
@@ -480,9 +480,9 @@ void	find_side_indexes(t_stack *ptr, int *top_index, int *bottom_index)
 	*bottom_index = ptr->index;
 	while (ptr)
 	{
-		if (*top_index < ptr->index)
+		if (*top_index > ptr->index)
 			*top_index = ptr->index;
-		if (*bottom_index > ptr->index)
+		if (*bottom_index < ptr->index)
 			*bottom_index = ptr->index;
 		ptr = ptr->next;
 	}
@@ -607,8 +607,8 @@ void move_optimal_element_to_a(t_stack *ptr, t_all *all)
 	}
 	pa(&all->a, &all->b, 1);
 	all->counter += 1;
-	print_lst(all->a);
-	print_lst(all->b);
+//	print_lst(all->a);
+//	print_lst(all->b);
 }
 
 void put_head_on_top(t_stack **a, int size, int *counter)
@@ -650,21 +650,93 @@ void find_fastest_way(t_all *all)
 	}
 }
 
+char		**copy_arrays_2x(char **src_arr)
+{
+	int		i;
+	char	**tmp_src;
+	char	**tmp_dst;
+	char	**res_arr;
+
+	i = 0;
+	if (!src_arr)
+		return NULL;
+	tmp_src = src_arr;
+	while(*(tmp_src++)) {
+		i++;
+	}
+	res_arr = (char **) malloc(sizeof(char *) * i + 1);
+	tmp_src = src_arr;
+	tmp_dst = res_arr;
+	while(*tmp_src)
+	{
+		*tmp_dst = ft_strdup(*tmp_src);
+		tmp_src++;
+		tmp_dst++;
+	}
+	*tmp_dst = NULL;
+	return res_arr;
+}
+
+int	get_arr_2x_len(char **arr)
+{
+	int		res;
+
+	res = 0;
+	while (*arr++)
+		res++;
+	return (res);
+}
+
+int split_string(int *argc, char **argv, char ***inputs)
+{
+	int res;
+
+	res = 0;
+	if (*argc == 2)
+	{
+		*inputs = ft_split(argv[1], ' ');
+		*argc = get_arr_2x_len(*inputs) + 1;
+	}
+	else
+	{
+		*inputs = copy_arrays_2x(argv);
+	}
+	if (!(*inputs))
+		return (0);
+	return 1;
+}
+
+void		clear_arr_2x(char ***arr)
+{
+	int		i;
+	int size;
+
+	i = 0;
+	size = get_arr_2x_len(*arr);
+	while (i < size)
+		free((*arr)[i++]);
+	free(*arr);
+}
+
 int main(int argc, char **argv)
 {
+	char **inputs;
 	t_all all;
-//	printf("args: %d\n", argc);
-	if (argc == 1)
+
+	inputs = NULL;
+	printf("args: %d\n", argc);
+	if (argc == 1 || split_string(&argc, argv, &inputs) == 0)
 		return (EXIT_SUCCESS);
 	init_struct(&all, argc);
-	parse_argv(argv, &(all.a), all.size);
+	parse_argv(inputs, &(all.a), all.size);
 	count_indexes(all.a, all.size);
-	print_lst(all.a);
+
 	prepare_stacks(&all);
-	print_lst(all.a);
-	print_lst(all.b);
+//	print_lst(all.a);
+//	print_lst(all.b);
 	find_fastest_way(&all);
-	printf("total operations: %d\n", all.counter);
+//	printf("total operations: %d\n", all.counter);
 	print_lst(all.a);
+	clear_arr_2x(&inputs);
 	return 0;
 }
