@@ -22,17 +22,6 @@ typedef struct s_table
 	int		optimal_comb;
 }				t_table;
 
-
-typedef struct s_table
-{
-	int		a_up;
-	int		a_down;
-	int		b_up;
-	int		b_down;
-	int		total;
-}				t_table;
-
-
 typedef struct s_stack
 {
     int val;
@@ -43,7 +32,13 @@ typedef struct s_stack
     struct s_stack *prev;
 }               t_stack;
 
-
+typedef struct s_info
+{
+	int top_index;
+	int bottom_index;
+	int size_a;
+	int size_b;
+}	t_info;
 
 typedef struct s_all
 {
