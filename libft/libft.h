@@ -17,13 +17,10 @@
 # include <unistd.h>
 
 int					ft_isalnum(int c);
-int     			ft_atoi_clever(const char *str);
+int					ft_atoi_clever(const char *str);
 int					ft_isalpha(int c);
-
 int					ft_isascii(int ch);
-
 int					ft_isdigit(int ch);
-
 int					ft_isprint(int c);
 
 size_t				ft_strlen(const char *src);
