@@ -31,5 +31,5 @@ target_link_libraries(
 
 target_compile_options(
         pushswap PRIVATE
-        #        -Wall -Wextra -Werror
+        -Wall -Wextra -Werror
 )

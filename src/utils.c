@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yeschall <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/30 15:29:09 by yeschall          #+#    #+#             */
+/*   Updated: 2021/10/30 15:29:11 by yeschall         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/pushswap.h"
 
 int	is_number(char *str)
@@ -16,16 +28,16 @@ int	is_number(char *str)
 	return (1);
 }
 
-int max(int a, int b)
+int	max(int a, int b)
 {
 	if (a > b)
-		return a;
-	return b;
+		return (a);
+	return (b);
 }
 
-int min(int a, int b)
+int	min(int a, int b)
 {
 	if (a < b)
-		return a;
-	return b;
+		return (a);
+	return (b);
 }

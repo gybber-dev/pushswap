@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   step_2_find_elem_in_b.c                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yeschall <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/30 15:22:19 by yeschall          #+#    #+#             */
+/*   Updated: 2021/10/30 15:22:20 by yeschall         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/pushswap.h"
 
-static void count_total_steps (t_table *table)
+static void	count_total_steps(t_table *table)
 {
 	int	prev_total;
 
@@ -27,22 +39,24 @@ static void count_total_steps (t_table *table)
 	}
 }
 
-static void	count_steps_for_b_elem(t_stack **ptr, int index, t_all *all, t_info info)
+static void	count_steps_for_b_elem(t_stack **ptr, int index, \
+				t_all *all, t_info info)
 {
-	t_stack *tmp;
-	t_stack *prev;
-	t_stack *next;
+	t_stack		*tmp;
+	t_stack		*prev;
+	t_stack		*next;
 
 	(*ptr)->table.b_up = index;
 	(*ptr)->table.b_down = info.size_b - index;
 	tmp = all->a;
-	while(tmp)
+	while (tmp)
 	{
 		prev = get_prev(tmp);
 		next = tmp;
 		if ((prev->index < (*ptr)->index && (*ptr)->index < next->index) || \
-		(prev->index == info.bottom_index && next->index == info.top_index && ((*ptr)->index < info.top_index || (*ptr)->index > info.bottom_index)))
-			break;
+		(prev->index == info.bottom_index && next->index == info.top_index && \
+		((*ptr)->index < info.top_index || (*ptr)->index > info.bottom_index)))
+			break ;
 		(*ptr)->table.a_up++;
 		tmp = tmp->next;
 	}
@@ -56,7 +70,7 @@ static void	find_side_indexes(t_stack *ptr, int *top_index, int *bottom_index)
 	{
 		*top_index = 0;
 		*bottom_index = 0;
-		return;
+		return ;
 	}
 	*top_index = ptr->index;
 	*bottom_index = ptr->index;
@@ -70,11 +84,11 @@ static void	find_side_indexes(t_stack *ptr, int *top_index, int *bottom_index)
 	}
 }
 
-void count_totals_for_each_b_elem(t_all *all)
+void	count_totals_for_each_b_elem(t_all *all)
 {
-	t_stack *ptr;
+	t_stack	*ptr;
 	int		index;
-	t_info info;
+	t_info	info;
 
 	ft_memset(&info, 0, sizeof(t_info));
 	find_side_indexes(all->a, &info.top_index, &info.bottom_index);
@@ -82,7 +96,7 @@ void count_totals_for_each_b_elem(t_all *all)
 	info.size_b = count_lst_size(all->b);
 	index = 0;
 	ptr = all->b;
-	while(ptr)
+	while (ptr)
 	{
 		ft_memset(&ptr->table, 0, sizeof(t_table));
 		count_steps_for_b_elem(&ptr, index, all, info);
@@ -91,16 +105,16 @@ void count_totals_for_each_b_elem(t_all *all)
 	}
 }
 
-t_stack *choose_elem_with_min_total(t_stack *ptr)
+t_stack	*choose_elem_with_min_total(t_stack *ptr)
 {
-	int current_total;
-	t_stack *res_elem;
+	int		current_total;
+	t_stack	*res_elem;
 
 	if (!ptr)
 		return (ptr);
 	res_elem = ptr;
 	current_total = ptr->table.total;
-	while(ptr->next)
+	while (ptr->next)
 	{
 		if (ptr->table.total < current_total)
 		{

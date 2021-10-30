@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   step_0_init.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yeschall <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/30 15:19:15 by yeschall          #+#    #+#             */
+/*   Updated: 2021/10/30 15:19:17 by yeschall         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/pushswap.h"
 
-static int is_double(t_stack *ptr, int value)
+static int	is_double(t_stack *ptr, int value)
 {
 	while (ptr)
 	{
@@ -11,7 +23,7 @@ static int is_double(t_stack *ptr, int value)
 	return (0);
 }
 
-int split_string(int *argc, char **argv, char ***inputs)
+int	split_string(int *argc, char **argv, char ***inputs)
 {
 	if (*argc == 2)
 	{
@@ -24,10 +36,10 @@ int split_string(int *argc, char **argv, char ***inputs)
 	}
 	if (!(*inputs))
 		return (0);
-	return 1;
+	return (1);
 }
 
-void init_struct(t_all *all, int argc)
+void	init_struct(t_all *all, int argc)
 {
 	all->a = NULL;
 	all->b = NULL;
@@ -35,11 +47,11 @@ void init_struct(t_all *all, int argc)
 	all->counter = 0;
 }
 
-void parse_argv(char **argv, t_stack **a)
+void	parse_argv(char **argv, t_stack **a)
 {
-	int i;
-	int num;
-	t_stack *new;
+	int		i;
+	int		num;
+	t_stack	*new;
 
 	i = 0;
 	while (argv && argv[i])
@@ -57,12 +69,12 @@ void parse_argv(char **argv, t_stack **a)
 	}
 }
 
-void count_indexes(t_stack *ptr, int size)
+void	count_indexes(t_stack *ptr, int size)
 {
-	int min;
-	t_stack *min_p;
-	t_stack *tmp;
-	int counter;
+	int		min;
+	t_stack	*min_p;
+	t_stack	*tmp;
+	int		counter;
 
 	counter = 0;
 	while (counter < size)

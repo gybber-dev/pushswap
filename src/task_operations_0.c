@@ -1,12 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   task_operations_0.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yeschall <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/30 15:27:58 by yeschall          #+#    #+#             */
+/*   Updated: 2021/10/30 15:28:00 by yeschall         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/pushswap.h"
 
-void swap(t_stack **ptr)
+void	swap(t_stack **ptr)
 {
-	t_stack *tmp1;
-	t_stack *tmp2;
+	t_stack	*tmp1;
+	t_stack	*tmp2;
 
 	if (!(*ptr) || !(*ptr)->next)
-		return;
+		return ;
 	tmp1 = *ptr;
 	tmp2 = (*ptr)->next;
 	tmp1->next = tmp2->next;
@@ -16,12 +28,12 @@ void swap(t_stack **ptr)
 	*ptr = tmp2;
 }
 
-void push(t_stack **src, t_stack **dst)
+void	push(t_stack **src, t_stack **dst)
 {
-	t_stack *tmp;
+	t_stack	*tmp;
 
 	if (!(*src))
-		return;
+		return ;
 	tmp = *src;
 	*src = (*src)->next;
 	if (*src)
@@ -32,13 +44,13 @@ void push(t_stack **src, t_stack **dst)
 	*dst = tmp;
 }
 
-void shift_up(t_stack **head)
+void	shift_up(t_stack **head)
 {
-	t_stack *node;
-	t_stack *tmp;
+	t_stack	*node;
+	t_stack	*tmp;
 
 	if (!(*head) || !(*head)->next)
-		return;
+		return ;
 	node = *head;
 	*head = (*head)->next;
 	tmp = *head;
@@ -50,12 +62,12 @@ void shift_up(t_stack **head)
 	(*head)->prev = NULL;
 }
 
-void shift_down(t_stack **head)
+void	shift_down(t_stack **head)
 {
-	t_stack *node;
+	t_stack	*node;
 
 	if (!(*head) || !(*head)->next)
-		return;
+		return ;
 	node = *head;
 	while (node->next)
 		node = node->next;
@@ -66,8 +78,7 @@ void shift_down(t_stack **head)
 	(*head)->prev = NULL;
 }
 
-
-int rr(t_stack **a, t_stack **b, int is_print)
+int	rr(t_stack **a, t_stack **b, int is_print)
 {
 	if (is_print)
 		ft_putstr_fd("rr\n", 1);

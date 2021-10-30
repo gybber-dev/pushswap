@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils_arr2x.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yeschall <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/30 15:29:21 by yeschall          #+#    #+#             */
+/*   Updated: 2021/10/30 15:29:24 by yeschall         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/pushswap.h"
 
 int	get_arr_2x_len(char **arr)
@@ -10,10 +22,10 @@ int	get_arr_2x_len(char **arr)
 	return (res);
 }
 
-void		clear_arr_2x(char ***arr)
+void	clear_arr_2x(char ***arr)
 {
 	int		i;
-	int size;
+	int		size;
 
 	i = 0;
 	size = get_arr_2x_len(*arr);
@@ -22,7 +34,7 @@ void		clear_arr_2x(char ***arr)
 	free(*arr);
 }
 
-char		**copy_arrays_2x(char **src_arr)
+char	**copy_arrays_2x(char **src_arr)
 {
 	int		i;
 	char	**tmp_src;
@@ -31,20 +43,21 @@ char		**copy_arrays_2x(char **src_arr)
 
 	i = 0;
 	if (!src_arr)
-		return NULL;
+		return (NULL);
 	tmp_src = src_arr;
-	while(*(tmp_src++)) {
+	while (*(tmp_src++))
+	{
 		i++;
 	}
 	res_arr = (char **) malloc(sizeof(char *) * i + 1);
 	tmp_src = src_arr;
 	tmp_dst = res_arr;
-	while(*tmp_src)
+	while (*tmp_src)
 	{
 		*tmp_dst = ft_strdup(*tmp_src);
 		tmp_src++;
 		tmp_dst++;
 	}
 	*tmp_dst = NULL;
-	return res_arr;
+	return (res_arr);
 }

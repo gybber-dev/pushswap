@@ -7,7 +7,7 @@ SUM=0
 for i in {1..100}
 do
 		export ARG=`ruby -e "puts (1..500).to_a.shuffle.join(' ')"`
-		if ../cmake-build-debug/pushswap $ARG | ./checker_Mac $ARG | grep -q KO
+		if ./push_swap $ARG | ./checker_Mac $ARG | grep -q KO
 		then
 			echo "Error!"
 			echo $ARG

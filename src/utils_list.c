@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils_list.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yeschall <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/30 15:29:30 by yeschall          #+#    #+#             */
+/*   Updated: 2021/10/30 15:29:32 by yeschall         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/pushswap.h"
 
 t_stack	*ft_lst2_new(int num)
@@ -16,7 +28,7 @@ t_stack	*ft_lst2_new(int num)
 	return (new);
 }
 
-t_stack	*ft_lst2_add_back(t_stack **lst, t_stack *new)
+void	ft_lst2_add_back(t_stack **lst, t_stack *new)
 {
 	t_stack	*tmp;
 
@@ -37,7 +49,7 @@ int	count_lst_size(t_stack *ptr)
 	int	i;
 
 	i = 0;
-	while(ptr)
+	while (ptr)
 	{
 		i++;
 		ptr = ptr->next;
@@ -45,10 +57,9 @@ int	count_lst_size(t_stack *ptr)
 	return (i);
 }
 
-void ft_lst_clear(t_stack **stack)
+void	ft_lst_clear(t_stack **stack)
 {
-	t_stack *temp;
-	int i;
+	t_stack	*temp;
 
 	while (*stack)
 	{
